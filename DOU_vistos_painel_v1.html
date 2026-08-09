@@ -1,0 +1,1716 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel BI · DOU Vistos v1</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      color-scheme: light;
+
+      --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #6c757d;
+      --border: rgba(15, 23, 42, .12);
+
+      --kpi-bg: #0b1220;
+      --kpi-fg: #e7eefc;
+      --kpi-muted: #b8c7e6;
+
+      --shadow: 0 8px 22px rgba(15, 23, 42, .06);
+      --badge-soft-bg: rgba(13,110,253,.10);
+      --badge-soft-fg: #0d6efd;
+
+      --control-bg: #ffffff;
+      --control-fg: #0f172a;
+      --control-border: rgba(15, 23, 42, .18);
+      --control-placeholder: rgba(15, 23, 42, .45);
+
+      --link: #0d6efd;
+      --link-hover: #0a58ca;
+
+      --pill-bg: rgba(13,110,253,.10);
+      --pill-fg: #0d6efd;
+      --pill-active-bg: #0d6efd;
+      --pill-active-fg: #ffffff;
+
+      --choice-chip-bg: rgba(13,110,253,.14);
+      --choice-chip-border: rgba(13,110,253,.35);
+      --choice-chip-fg: var(--text);
+
+      --choice-hover-bg: rgba(13,110,253,.14);
+      --choice-hover-fg: var(--text);
+    }
+
+    html[data-theme="dark"]{
+      color-scheme: dark;
+
+      --bg: #070b14;
+      --card: #0b1220;
+      --text: #e7eefc;
+      --muted: #aab4c5;
+      --border: rgba(231, 238, 252, .12);
+
+      --kpi-bg: #0f172a;
+      --kpi-fg: #e7eefc;
+      --kpi-muted: #b8c7e6;
+
+      --shadow: 0 10px 26px rgba(0, 0, 0, .35);
+      --badge-soft-bg: rgba(56,189,248,.12);
+      --badge-soft-fg: #38bdf8;
+
+      --control-bg: #0f172a;
+      --control-fg: #e7eefc;
+      --control-border: rgba(231, 238, 252, .20);
+      --control-placeholder: rgba(231, 238, 252, .55);
+
+      --link: #38bdf8;
+      --link-hover: #7dd3fc;
+
+      --pill-bg: rgba(56,189,248,.12);
+      --pill-fg: #7dd3fc;
+      --pill-active-bg: #38bdf8;
+      --pill-active-fg: #071521;
+
+      --choice-chip-bg: rgba(56,189,248,.14);
+      --choice-chip-border: rgba(56,189,248,.30);
+      --choice-chip-fg: var(--text);
+
+      --choice-hover-bg: rgba(56,189,248,.16);
+      --choice-hover-fg: var(--text);
+    }
+
+    html, body { font-family: var(--font-sans); }
+    body { background: var(--bg); color: var(--text); }
+
+    .mono { font-family: var(--font-mono); }
+    .soft { color: var(--muted); }
+
+    .ui-title { color: var(--text) !important; }
+    .ui-subtitle { color: var(--muted) !important; font-size: .9rem; }
+
+    .navbar { background: var(--card) !important; }
+    .border-bottom { border-color: var(--border) !important; }
+
+    .brand-title{
+      color: var(--text) !important;
+      text-decoration: none !important;
+      cursor: default;
+    }
+
+    .kpi-card { background: var(--kpi-bg); color: var(--kpi-fg); border: 0; }
+    .kpi-title { font-size: .80rem; color: var(--kpi-muted); }
+    .kpi-value { font-size: 1.4rem; font-weight: 700; letter-spacing: .2px; }
+    .kpi-sub { font-size: .80rem; color: var(--kpi-muted); }
+
+    .chart-card { background: var(--card); border: 0; box-shadow: var(--shadow); }
+    .badge-soft { background: var(--badge-soft-bg); color: var(--badge-soft-fg); }
+    .insight { background: var(--card); border: 1px solid var(--border); border-radius: .75rem; padding: .75rem; }
+    .sticky-top-lite { position: sticky; top: .75rem; z-index: 10; }
+
+    .form-label{ color: var(--text); }
+    .form-control, .form-select{
+      background: var(--control-bg) !important;
+      color: var(--control-fg) !important;
+      border-color: var(--control-border) !important;
+    }
+    .form-control::placeholder{ color: var(--control-placeholder) !important; }
+    .form-control:focus, .form-select:focus{
+      box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--link) 25%, transparent) !important;
+      border-color: color-mix(in srgb, var(--link) 55%, var(--control-border)) !important;
+    }
+
+    input[type="date"]{ color-scheme: inherit; }
+
+    .btn-outline-secondary{
+      border-color: var(--control-border) !important;
+      color: var(--text) !important;
+      background: transparent !important;
+    }
+    .btn-outline-secondary:hover{
+      background: color-mix(in srgb, var(--card) 60%, var(--text) 10%) !important;
+    }
+    .btn-outline-primary{
+      border-color: color-mix(in srgb, var(--link) 55%, var(--control-border)) !important;
+      color: var(--link) !important;
+      background: transparent !important;
+    }
+
+    .nav-pills .nav-link{
+      background: var(--pill-bg);
+      color: var(--pill-fg);
+      border: 1px solid var(--border);
+    }
+    .nav-pills .nav-link.active{
+      background: var(--pill-active-bg);
+      color: var(--pill-active-fg);
+      border-color: color-mix(in srgb, var(--pill-active-bg) 70%, var(--border));
+    }
+
+    .offcanvas{ background: var(--card); color: var(--text); }
+    .btn-close{ filter: invert(0); }
+    html[data-theme="dark"] .btn-close{ filter: invert(1); }
+
+    .choices{
+      font-size: .95rem;
+      line-height: 1.2;
+      font-family: var(--font-sans);
+    }
+    .choices__inner{
+      min-height: 38px;
+      padding: .375rem .75rem;
+      background: var(--control-bg) !important;
+      border-color: var(--control-border) !important;
+      color: var(--control-fg) !important;
+      border-radius: .375rem;
+    }
+    .choices__list--single .choices__item{ color: var(--control-fg) !important; }
+    .choices__placeholder,
+    .choices__inner .choices__placeholder{
+      color: var(--control-placeholder) !important;
+      opacity: 1 !important;
+    }
+    .choices__input{
+      background: transparent !important;
+      color: var(--control-fg) !important;
+      font-family: var(--font-sans);
+    }
+    .choices__list--dropdown,
+    .choices__list[aria-expanded]{
+      background: var(--card) !important;
+      border-color: var(--border) !important;
+      color: var(--text) !important;
+      z-index: 2000;
+    }
+    .choices__list--dropdown .choices__item--choice,
+    .choices__list[aria-expanded] .choices__item--choice{
+      background: transparent !important;
+      color: var(--text) !important;
+      font-family: var(--font-sans);
+    }
+    .choices__list--dropdown .choices__item--choice.is-highlighted,
+    .choices__list[aria-expanded] .choices__item--choice.is-highlighted{
+      background: var(--choice-hover-bg) !important;
+      color: var(--choice-hover-fg) !important;
+    }
+    .choices__list--multiple .choices__item{
+      background: var(--choice-chip-bg) !important;
+      border: 1px solid var(--choice-chip-border) !important;
+      color: var(--choice-chip-fg) !important;
+      border-radius: .5rem;
+      font-size: .90rem;
+      padding: .15rem .45rem;
+    }
+    .choices__list--multiple .choices__item .choices__button{
+      filter: none;
+      opacity: .85;
+      border-left: 1px solid color-mix(in srgb, var(--choice-chip-border) 65%, transparent) !important;
+    }
+    html[data-theme="dark"] .choices__list--multiple .choices__item .choices__button{
+      filter: invert(1);
+      opacity: .90;
+    }
+    .choices.is-focused .choices__inner,
+    .choices.is-open .choices__inner{
+      border-color: color-mix(in srgb, var(--link) 55%, var(--control-border)) !important;
+      box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--link) 22%, transparent) !important;
+    }
+
+    .tabulator {
+      border-radius: .75rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--card) !important;
+      color: var(--text) !important;
+    }
+    .tabulator .tabulator-header{
+      background: color-mix(in srgb, var(--card) 92%, #000 8%) !important;
+      border-bottom: 1px solid var(--border) !important;
+      color: var(--text) !important;
+    }
+    html[data-theme="dark"] .tabulator .tabulator-header{
+      background: color-mix(in srgb, var(--card) 86%, #fff 14%) !important;
+    }
+    .tabulator .tabulator-col,
+    .tabulator .tabulator-col .tabulator-col-content,
+    .tabulator .tabulator-col .tabulator-col-title{
+      color: var(--text) !important;
+    }
+    .tabulator .tabulator-col{ background: transparent !important; border-right: 1px solid var(--border) !important; }
+    .tabulator .tabulator-row { background: var(--card) !important; color: var(--text) !important; border-bottom: 1px solid var(--border) !important; }
+    .tabulator .tabulator-row.tabulator-row-even { background: color-mix(in srgb, var(--card) 92%, #000 8%) !important; }
+    html[data-theme="dark"] .tabulator .tabulator-row.tabulator-row-even { background: color-mix(in srgb, var(--card) 86%, #fff 14%) !important; }
+    .tabulator .tabulator-header-filter input{
+      background: var(--control-bg) !important;
+      color: var(--control-fg) !important;
+      border: 1px solid var(--control-border) !important;
+      border-radius: .375rem;
+      padding: .25rem .5rem;
+    }
+
+    .table { color: var(--text); }
+    .table thead th{ color: var(--text); }
+    .table tbody td{ color: var(--text); }
+    .table > :not(caption) > * > *{ background: transparent; }
+
+    .btn-clear{
+      font-weight: 700;
+      letter-spacing: .2px;
+      padding: .65rem .85rem;
+    }
+
+    @media print{
+      nav, .offcanvas, .btn, .nav-pills { display: none !important; }
+      body { background: #fff !important; color: #000 !important; }
+      .chart-card { box-shadow: none !important; border: 1px solid #ddd !important; }
+      .kpi-card { background: #111 !important; color: #fff !important; }
+      .sticky-top-lite { position: static !important; }
+      a[href]:after { content: "" !important; }
+    }
+  </style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg border-bottom">
+  <div class="container-fluid">
+    <div class="fw-semibold" id="appTitleWrap">
+      <span class="brand-title">Painel BI · DOU Vistos v1</span>
+      <span class="soft"> | </span>
+      <span id="osMonthYear" class="soft">—/—</span>
+      <span class="soft"> | (c) Nilton Araújo</span>
+    </div>
+
+    <div class="d-flex gap-2 align-items-center">
+      <button class="btn btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#filtersCanvas" aria-controls="filtersCanvas">
+        Filtros
+      </button>
+
+      <button id="btnTheme" class="btn btn-outline-secondary" title="Alternar tema">
+        Tema: Claro
+      </button>
+
+      <button id="btnPrint" class="btn btn-outline-secondary" title="Imprimir painel">
+        Imprimir Painel
+      </button>
+
+      <label class="btn btn-outline-primary mb-0">
+        Testar outro CSV
+        <input id="fileInput" type="file" accept=".csv,text/csv" hidden />
+      </label>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid my-3">
+  <div class="row g-3">
+    <div class="col-lg-3">
+      <div class="card chart-card sticky-top-lite d-none d-lg-block">
+        <div class="card-body">
+          <div class="ui-title fw-semibold">Filtros</div>
+          <div class="ui-subtitle">Segmentação rápida</div>
+
+          <button id="btnReset" class="btn btn-outline-danger btn-clear w-100 mt-3">
+            Limpar filtros
+          </button>
+
+          <hr />
+
+          <div class="mb-2">
+            <label class="form-label">Período (Data DOU)</label>
+            <div class="d-flex gap-2">
+              <input id="dateStart" type="date" class="form-control" />
+              <input id="dateEnd" type="date" class="form-control" />
+            </div>
+            <div class="soft mt-1" style="font-size:.85rem;" id="dateRangeHint"></div>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Requisitante</label>
+            <select id="fRequerente" multiple></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Status</label>
+            <select id="fStatus" multiple></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">País</label>
+            <select id="fPais" multiple></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">RN</label>
+            <select id="fRN" multiple></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Setor (heurística)</label>
+            <select id="fSetor" multiple></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="offcanvas offcanvas-start" tabindex="-1" id="filtersCanvas" aria-labelledby="filtersCanvasLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title ui-title" id="filtersCanvasLabel">Filtros</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+          <button id="btnResetMobile" class="btn btn-outline-danger btn-clear w-100 mb-3">
+            Limpar filtros
+          </button>
+
+          <div class="mb-2">
+            <label class="form-label">Período (Data DOU)</label>
+            <div class="d-flex gap-2">
+              <input id="dateStart_m" type="date" class="form-control" />
+              <input id="dateEnd_m" type="date" class="form-control" />
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Requisitante</label>
+            <select id="fRequerente_m" multiple></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Status</label>
+            <select id="fStatus_m" multiple></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">País</label>
+            <select id="fPais_m" multiple></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">RN</label>
+            <select id="fRN_m" multiple></select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Setor (heurística)</label>
+            <select id="fSetor_m" multiple></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <div class="row g-3">
+        <div class="col-6 col-xl-3">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="kpi-title">Processos</div>
+              <div id="kpiTotal" class="kpi-value">—</div>
+              <div id="kpiTotalSub" class="kpi-sub">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="kpi-title">Requisitantes</div>
+              <div id="kpiRequerentes" class="kpi-value">—</div>
+              <div id="kpiRequerentesSub" class="kpi-sub">Top conta: —</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="kpi-title">Deferimento</div>
+              <div id="kpiDeferimento" class="kpi-value">—</div>
+              <div id="kpiDeferimentoSub" class="kpi-sub">Deferidos: —</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="kpi-title">País líder (válidos)</div>
+              <div id="kpiPais" class="kpi-value">—</div>
+              <div id="kpiPaisSub" class="kpi-sub">Participação: —</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+                    <ul class="nav nav-pills gap-2 w-100" id="tabs">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabGeral">Visão geral</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabRequerentes">Clientes (requisitantes)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabBenchmark">Benchmarking</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabDados">Tabela / export</button></li>
+            <li class="ms-auto d-flex gap-2 align-items-center">
+              <button id="btnToggleNI" class="btn btn-outline-secondary btn-sm" type="button">Incluir “Não informado”</button>
+              <button id="btnToggleRNGen" class="btn btn-outline-secondary btn-sm" type="button">Incluir RN genérica</button>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-12">
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="tabGeral">
+              <div class="row g-3">
+                <div class="col-12 col-xl-8">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div>
+                          <div class="ui-title fw-semibold">Tendência mensal (Data DOU)</div>
+                          <div class="ui-subtitle">O que mostra: evolução do volume ao longo do tempo, por status.</div>
+                          <div class="ui-subtitle">Como usar: ajuda a ver sazonalidade e impacto de mudanças regulatórias ou comerciais.</div>
+                        </div>
+                        <span id="metaWindow" class="badge badge-soft">—</span>
+                      </div>
+                      <div id="chartTimeline" style="height:360px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-4">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Distribuição por status</div>
+                      <div class="ui-subtitle">O que mostra: peso relativo de deferidos, indeferidos, Sem Efeito e outros.</div>
+                      <div class="ui-subtitle">Como usar: leitura rápida da “saúde” da carteira de processos.</div>
+                      <div id="chartStatus" style="height:360px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Top países</div>
+                      <div class="ui-subtitle">O que mostra: principais origens dos imigrantes (quando informado).</div>
+                      <div class="ui-subtitle">Como usar: priorizar países para materiais, idioma e cases.</div>
+                      <div id="chartPais" style="height:320px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Top RN / base legal</div>
+                      <div class="ui-subtitle">O que mostra: normas mais usadas para os processos.</div>
+                      <div class="ui-subtitle">Como usar: direcionar especialização técnica e conteúdo.</div>
+                      <div id="chartRN" style="height:320px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Funil por status (por RN)</div>
+                      <div class="ui-subtitle">O que mostra: concentração de status por base legal.</div>
+                      <div class="ui-subtitle">Como usar: identificar RNs com maior risco de indeferimento.</div>
+                      <div id="chartFunilStatus" style="height:320px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Bucket de prazos (meses)</div>
+                      <div class="ui-subtitle">O que mostra: quantos meses de residência/prazo são mais comuns.</div>
+                      <div class="ui-subtitle">Como usar: ajustar propostas e honorários ao perfil de prazo.</div>
+                      <div id="chartPrazo" style="height:320px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Volume 3M × histórico</div>
+                      <div class="ui-subtitle">O que mostra: comparação entre os últimos 3 meses e o total histórico.</div>
+                      <div class="ui-subtitle">Como usar: enxergar aceleração ou queda geral da demanda.</div>
+                      <div id="chart3mHistorico" style="height:320px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="insight">
+                    <div class="ui-title fw-semibold">Insights acionáveis (automático)</div>
+                    <div class="ui-subtitle">Resumo em linguagem simples para apoiar conversas com clientes e planejamento comercial.</div>
+                    <div id="insightsGeral" class="mt-2 soft">Carregue um CSV para gerar insights.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tabRequerentes">
+              <div class="row g-3">
+                <div class="col-12 col-xl-7">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Top requisitantes por volume</div>
+                      <div class="ui-subtitle">O que mostra: contas com maior número de processos.</div>
+                      <div class="ui-subtitle">Como usar: priorização de contas-chave para ABM e relacionamento.</div>
+                      <div id="chartRequerentes" style="height:360px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-5">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Setor (heurística) × volume</div>
+                      <div class="ui-subtitle">O que mostra: em quais indústrias os processos se concentram.</div>
+                      <div class="ui-subtitle">Como usar: planejar foco comercial por segmento.</div>
+                      <div id="chartSetor" style="height:360px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Mapa de calor: País × RN</div>
+                      <div class="ui-subtitle">O que mostra: combinação de país de origem e base legal.</div>
+                      <div class="ui-subtitle">Como usar: construir propostas específicas por país/regra.</div>
+                      <div id="chartPaisRn" style="height:360px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Requisitantes-alvo (crescimento)</div>
+                      <div class="ui-subtitle">O que mostra: quem mais está acelerando nos últimos meses.</div>
+                      <div class="ui-subtitle">Como usar: identificar contas em “modo expansão” para oferta proativa.</div>
+                      <div id="chartReqGrowth" style="height:360px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Mix de prazos por setor</div>
+                      <div class="ui-subtitle">O que mostra: prazos curtos/médios/longos por indústria.</div>
+                      <div class="ui-subtitle">Como usar: adaptar pacotes e SLAs ao perfil de cada setor.</div>
+                      <div id="chartPrazoSetor" style="height:360px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="insight">
+                    <div class="ui-title fw-semibold">Oportunidades e “gaps” de dados</div>
+                    <div class="ui-subtitle">Contas com volume relevante e campos “NO INFORMADO” (ex.: País/Prazo) para melhorar qualificação e proposta.</div>
+                    <div id="oppsTable" class="mt-3 soft">Carregue um CSV para listar oportunidades.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tabBenchmark">
+              <div class="row g-3">
+                <div class="col-12">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="ui-title fw-semibold">Benchmark por requisitante (Top por volume)</div>
+                      <div class="ui-subtitle">O que mostra: relação entre volume de processos e taxa de deferimento.</div>
+                      <div class="ui-subtitle">Como usar: comparar desempenho entre contas similares.</div>
+                      <div id="chartBenchmark" style="height:420px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="insight">
+                    <div class="ui-title fw-semibold">Leituras para estratégia comercial</div>
+                    <div class="ui-subtitle">
+                      Legenda rápida: <span class="fw-semibold">3M</span> = últimos 3 meses; <span class="fw-semibold">prev</span> = 3 meses anteriores;
+                      <span class="fw-semibold">Alta demanda</span> = alto volume de processos; <span class="fw-semibold">gaps</span> = ausência de dados importantes (ex.: País, Prazo, etc.).
+                    </div>
+                    <div id="insightsBenchmark" class="mt-2 soft">Carregue um CSV para gerar leituras.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tabDados">
+              <div class="row g-3">
+                <div class="col-12">
+                  <div class="card chart-card">
+                    <div class="card-body">
+                      <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center">
+                        <div>
+                          <div class="ui-title fw-semibold">Tabela completa</div>
+                          <div class="ui-subtitle">Busca, ordenação e export.</div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                          <button id="btnDownloadCsv" class="btn btn-outline-primary">Exportar (CSV filtrado)</button>
+                          <button id="btnDownloadXlsx" class="btn btn-outline-secondary">Exportar (XLSX)</button>
+                        </div>
+                      </div>
+
+                      <div class="soft mt-2" style="font-size:.85rem;">
+                        Observação: colunas técnicas vazias do tipo <span class="mono">_1</span>…<span class="mono">_41</span> foram removidas.
+                      </div>
+
+                      <div id="grid" class="mt-3"></div>
+                      <div class="soft mt-2" style="font-size:.85rem;" id="gridMeta">—</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /tab-content -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6.3.0/dist/js/tabulator.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script>
+(() => {
+  const VERSION = "v1";
+  const AUTO_CSV_URL = "https://raw.githubusercontent.com/niltonaraujoit/douvistos-dados/refs/heads/main/dados.csv";
+
+  const state = {
+    rawRows: [],
+    rows: [],
+    cols: {},
+    filters: { start:null, end:null, requerente:[], status:[], pais:[], rn:[], setor:[], incluirNaoInformado:true, incluirRnGenerica:true },
+    choices: {},
+    grid: null
+  };
+
+  const el = (id) => document.getElementById(id);
+
+  function setOsMonthYear() {
+    const now = new Date();
+    const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(now);
+    const year = new Intl.DateTimeFormat("pt-BR", { year: "numeric" }).format(now);
+    const monthCap = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    const label = `${monthCap}/${year}`;
+    el("osMonthYear").textContent = label;
+    document.title = `Painel BI · DOU Vistos ${VERSION} | ${label} | (c) Nilton Araújo`;
+  }
+
+  function norm(s) {
+    return (s ?? "").toString().trim().toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "");
+  }
+
+  function pickCol(headers, candidates) {
+    const map = new Map(headers.map(h => [norm(h), h]));
+    for (const c of candidates) {
+      const key = norm(c);
+      if (map.has(key)) return map.get(key);
+    }
+    for (const h of headers) {
+      const nh = norm(h);
+      for (const c of candidates) {
+        const nc = norm(c);
+        if (nh.includes(nc) || nc.includes(nh)) return h;
+      }
+    }
+    return null;
+  }
+
+  function parseDateAny(v) {
+    if (v === null || v === undefined) return null;
+    const s = v.toString().trim();
+    if (!s || /NO\s*INFORMADO/i.test(s) || s === "---") return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      const d = new Date(s + "T00:00:00"); return isNaN(d) ? null : d;
+    }
+    let m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (m) {
+      const d = new Date(`${m[3]}-${m[2]}-${m[1]}T00:00:00`); return isNaN(d) ? null : d;
+    }
+    m = s.match(/^(\d{2})(\d{2})(\d{4})$/);
+    if (m) {
+      const d = new Date(`${m[3]}-${m[2]}-${m[1]}T00:00:00`); return isNaN(d) ? null : d;
+    }
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
+  }
+
+  function monthKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    return `${y}-${m}`;
+  }
+
+  function parsePrazoMonths(v) {
+    if (v === null || v === undefined) return null;
+    const s = v.toString().trim().toUpperCase();
+    if (!s || s === "---" || s.includes("NO INFORMADO")) return null;
+    const m = s.match(/(\d+)\s*(ANO|ANOS|MES|MESES)/);
+    if (!m) return null;
+    const n = parseInt(m[1], 10);
+    const unit = m[2];
+    if (unit.startsWith("ANO")) return n * 12;
+    if (unit.startsWith("MES")) return n;
+    return null;
+  }
+
+  function setorHeuristico(requerente) {
+    const s = (requerente ?? "").toString().toUpperCase();
+    if (!s || s.includes("NO INFORMADO")) return "Não informado";
+    if (/(AUTO|MOTOR|MOTORS|BYD|RENAULT|TOYOTA|GWM|GREAT WALL|ELETRA|SCANIA)/.test(s)) return "Automotivo";
+    if (/(PETROLEO|PETR[ÓO]LEO|SUBSEA|OFFSHORE|MODEC|SAIPEM|MAERSK|BW LNG|OCEAN|TGS|ONESUBSEA|TRIDENT|DOF)/.test(s)) return "Óleo & Gás / Marítimo";
+    if (/(ENERGY|ENERGIA|SIEMENS|HITACHI|ENEL)/.test(s)) return "Energia / Utilities";
+    if (/(ENGENHARIA|CONSTRU|TOWERS|ESTALEIRO|JURONG|CADDELL)/.test(s)) return "Engenharia / Construção";
+    if (/(BANCO|BANK|RABOBANK)/.test(s)) return "Financeiro";
+    if (/(LOG|SUPPLY|SERVICE|SERVI[CÇ]OS|NAV|NAVIGACAO|MARIT|LOGIST)/.test(s)) return "Serviços / Logística";
+    return "Outros";
+  }
+
+  function isNotInformed(v) {
+    const s = (v ?? "").toString().trim().toUpperCase();
+    if (!s) return true;
+    if (s === "---") return true;
+    if (s.includes("NO INFORMADO")) return true;
+    if (s.includes("NÃO INFORMADO")) return true;
+    if (s === "NAO INFORMADO") return true;
+    if (s === "NÃO INFORMADO") return true;
+    if (s === "N/A") return true;
+    return false;
+  }
+
+  function rnPareceGenerica(v) {
+    const s = (v ?? "").toString().trim().toUpperCase();
+    if (!s) return true;                 // vazio -> genérica
+    if (s === "-" || s === "---") return true;  // hífen isolado
+    if (s === "RN XX/XXXX") return true;        // literal RN XX/XXXX
+    if (s === "RN 99/9999") return true;        // literal RN 99/9999
+    return false;
+  }
+
+  function uniq(arr) {
+    return Array.from(new Set(arr.filter(v => v !== null && v !== undefined && v !== "")));
+  }
+
+  function countBy(rows, keyFn) {
+    const m = new Map();
+    for (const r of rows) {
+      const k = keyFn(r);
+      if (k === null || k === undefined || k === "") continue;
+      m.set(k, (m.get(k) || 0) + 1);
+    }
+    return m;
+  }
+
+  function topN(map, n=10) {
+    return Array.from(map.entries()).sort((a,b)=>b[1]-a[1]).slice(0,n);
+  }
+
+  function pct(a,b) { return b ? (a/b)*100 : 0; }
+  function fmtInt(n) { return new Intl.NumberFormat("pt-BR").format(n); }
+  function fmtPct(n) { return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 }).format(n) + "%"; }
+
+  function plotlyThemeLayout() {
+    const bodyStyles = getComputedStyle(document.body);
+    return {
+      paper_bgcolor: "rgba(0,0,0,0)",
+      plot_bgcolor: "rgba(0,0,0,0)",
+      font: { color: bodyStyles.color }
+    };
+  }
+
+  function syncMobileFiltersFromDesktop() {
+    el("dateStart_m").value = el("dateStart").value;
+    el("dateEnd_m").value = el("dateEnd").value;
+    for (const k of ["Requerente","Status","Pais","RN","Setor"]) {
+      const d = state.choices[`f${k}`];
+      const m = state.choices[`f${k}_m`];
+      if (d && m) m.setChoiceByValue(d.getValue(true));
+    }
+  }
+
+  function syncDesktopFiltersFromMobile() {
+    el("dateStart").value = el("dateStart_m").value;
+    el("dateEnd").value = el("dateEnd_m").value;
+    for (const k of ["Requerente","Status","Pais","RN","Setor"]) {
+      const d = state.choices[`f${k}`];
+      const m = state.choices[`f${k}_m`];
+      if (d && m) d.setChoiceByValue(m.getValue(true));
+    }
+  }
+
+  function readFilters() {
+    state.filters.start = el("dateStart").value ? new Date(el("dateStart").value + "T00:00:00") : null;
+    state.filters.end = el("dateEnd").value ? new Date(el("dateEnd").value + "T23:59:59") : null;
+    state.filters.requerente = state.choices.fRequerente ? state.choices.fRequerente.getValue(true) : [];
+    state.filters.status = state.choices.fStatus ? state.choices.fStatus.getValue(true) : [];
+    state.filters.pais = state.choices.fPais ? state.choices.fPais.getValue(true) : [];
+    state.filters.rn = state.choices.fRN ? state.choices.fRN.getValue(true) : [];
+    state.filters.setor = state.choices.fSetor ? state.choices.fSetor.getValue(true) : [];
+  }
+
+  function applyFilters() {
+    readFilters();
+    const c = state.cols;
+    const rows = state.rows.filter(r => {
+      const d = r._dataDou;
+      if (state.filters.start && (!d || d < state.filters.start)) return false;
+      if (state.filters.end && (!d || d > state.filters.end)) return false;
+
+      const req = r[c.requerente] ?? "";
+      const st = r[c.status] ?? "";
+      const pa = r[c.pais] ?? "";
+      const rn = r[c.rn] ?? "";
+      const se = r._setor ?? "";
+
+      if (state.filters.requerente.length && !state.filters.requerente.includes(req)) return false;
+      if (state.filters.status.length && !state.filters.status.includes(st)) return false;
+      if (state.filters.pais.length && !state.filters.pais.includes(pa)) return false;
+      if (state.filters.rn.length && !state.filters.rn.includes(rn)) return false;
+      if (state.filters.setor.length && !state.filters.setor.includes(se)) return false;
+      if (!state.filters.incluirNaoInformado) {
+        if (isNotInformed(pa) || (c.prazo && isNotInformed(r[c.prazo]))) return false;
+      }
+
+      if (!state.filters.incluirRnGenerica && c.rn) {
+        if (rnPareceGenerica(r[c.rn])) return false;
+      }
+
+      return true;
+    });
+
+    renderAll(rows);
+  }
+
+  function setKpi(idValue, idSub, value, sub) {
+    el(idValue).textContent = value;
+    el(idSub).textContent = sub;
+  }
+
+  function renderKPIs(rows) {
+    const c = state.cols;
+    const total = rows.length;
+
+    const requerentes = uniq(rows.map(r => r[c.requerente]).filter(Boolean));
+    const statusMap = countBy(rows, r => (r[c.status] ?? "").toString().trim());
+    const deferidos = statusMap.get("DEFERIDO") || statusMap.get("DEFERIDO-") || 0;
+    const taxa = total ? (deferidos / total) : 0;
+
+    const reqMap = countBy(rows, r => (r[c.requerente] ?? "").toString().trim());
+    const topReq = topN(reqMap, 1)[0]?.[0] || "—";
+
+    const paisValidos = rows
+      .map(r => (r[c.pais] ?? "").toString().trim())
+      .filter(p => !isNotInformed(p));
+    const paisMap = countBy(paisValidos, p => p);
+    const topPaisPair = topN(paisMap, 1)[0];
+    const topPais = topPaisPair?.[0] || "—";
+    const topPaisN = topPaisPair?.[1] || 0;
+    const basePais = paisValidos.length;
+
+    const dates = rows.map(r => r._dataDou).filter(d => d instanceof Date && !isNaN(d));
+    let minD = null, maxD = null;
+    if (dates.length) {
+      minD = new Date(Math.min(...dates.map(d => d.getTime())));
+      maxD = new Date(Math.max(...dates.map(d => d.getTime())));
+    }
+
+    setKpi("kpiTotal", "kpiTotalSub", fmtInt(total), minD && maxD ? `${minD.toLocaleDateString("pt-BR")} → ${maxD.toLocaleDateString("pt-BR")}` : "Janela: —");
+    setKpi("kpiRequerentes", "kpiRequerentesSub", fmtInt(requerentes.length), `Top conta: ${topReq}`);
+    setKpi("kpiDeferimento", "kpiDeferimentoSub", fmtPct(taxa * 100), `Deferidos: ${fmtInt(deferidos)}`);
+
+    const paisSub = basePais ? `Participação: ${fmtPct(pct(topPaisN, basePais))}` : "Participação: —";
+    setKpi("kpiPais", "kpiPaisSub", topPais, paisSub);
+
+    el("metaWindow").textContent = minD && maxD ? `Janela: ${minD.toLocaleDateString("pt-BR")} → ${maxD.toLocaleDateString("pt-BR")}` : "Janela: —";
+  }
+
+  function renderTimeline(rows) {
+    const c = state.cols;
+    const byMonth = new Map();
+    for (const r of rows) {
+      const d = r._dataDou;
+      if (!(d instanceof Date) || isNaN(d)) continue;
+      const m = monthKey(d);
+      if (!byMonth.has(m)) byMonth.set(m, { total:0, deferido:0, outros:0 });
+      const o = byMonth.get(m);
+      o.total += 1;
+      const st = (r[c.status] ?? "").toString().trim().toUpperCase();
+      if (st.startsWith("DEFER")) o.deferido += 1; else o.outros += 1;
+    }
+
+    const months = Array.from(byMonth.keys()).sort();
+    const total = months.map(m => byMonth.get(m).total);
+    const def = months.map(m => byMonth.get(m).deferido);
+    const out = months.map(m => byMonth.get(m).outros);
+
+    Plotly.newPlot("chartTimeline", [
+      { x: months, y: total, type: "scatter", mode:"lines+markers", name:"Total", line:{ width:3 } },
+      { x: months, y: def, type: "bar", name:"Deferido", opacity: .85 },
+      { x: months, y: out, type: "bar", name:"Outros", opacity: .75 }
+    ], {
+      margin: { l:40, r:10, t:10, b:40 },
+      barmode: "stack",
+      legend: { orientation:"h" },
+      xaxis: { title:"Mês" },
+      yaxis: { title:"Qtd. processos" },
+      ...plotlyThemeLayout()
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  function renderStatus(rows) {
+    const c = state.cols;
+    const m = countBy(rows, r => (r[c.status] ?? "Não informado").toString().trim() || "Não informado");
+    const labels = Array.from(m.keys());
+    const values = labels.map(l => m.get(l));
+
+    Plotly.newPlot("chartStatus", [{
+      labels, values, type:"pie", hole:.55, textinfo:"label+percent"
+    }], {
+      margin: { l:10, r:10, t:10, b:10 },
+      showlegend: false,
+      ...plotlyThemeLayout()
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  function topBar(divId, rows, keyFn, titleX, top=12) {
+    const m = countBy(rows, keyFn);
+    const topPairs = topN(m, top);
+    const labels = topPairs.map(p => p[0] || "Não informado").reverse();
+    const values = topPairs.map(p => p[1]).reverse();
+
+    Plotly.newPlot(divId, [{
+      x: values, y: labels, type:"bar", orientation:"h"
+    }], {
+      margin: { l:160, r:10, t:10, b:40 },
+      xaxis: { title: titleX },
+      ...plotlyThemeLayout()
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  function renderFunilStatus(rows) {
+    const c = state.cols;
+    const rnSet = new Set();
+    const statusSet = new Set();
+    const map = new Map();
+
+    for (const r of rows) {
+      const rn = (r[c.rn] ?? "Não informado").toString().trim() || "Não informado";
+      const st = (r[c.status] ?? "Não informado").toString().trim() || "Não informado";
+      rnSet.add(rn); statusSet.add(st);
+      const key = rn + "||" + st;
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+
+    const rns = Array.from(rnSet).slice(0, 12);
+    const sts = Array.from(statusSet);
+
+    const z = [];
+    for (let i=0;i<sts.length;i++){
+      const rowZ = [];
+      for (let j=0;j<rns.length;j++){
+        const key = rns[j] + "||" + sts[i];
+        rowZ.push(map.get(key) || 0);
+      }
+      z.push(rowZ);
+    }
+
+    Plotly.newPlot("chartFunilStatus", [{
+      x: rns,
+      y: sts,
+      z: z,
+      type: "heatmap",
+      colorscale: "Blues"
+    }], {
+      margin:{l:120,r:10,t:10,b:60},
+      xaxis:{title:"RN"},
+      yaxis:{title:"Status"},
+      ...plotlyThemeLayout()
+    }, {responsive:true, displayModeBar:false});
+  }
+
+  function renderPrazoBuckets(rows) {
+    const buckets = {"0-6":0,"7-12":0,"13-24":0,"25-36":0,"37+":0,"Não informado":0};
+    for (const r of rows) {
+      const m = r._prazoMeses;
+      if (m === null) { buckets["Não informado"]++; continue; }
+      if (m <= 6) buckets["0-6"]++;
+      else if (m <= 12) buckets["7-12"]++;
+      else if (m <= 24) buckets["13-24"]++;
+      else if (m <= 36) buckets["25-36"]++;
+      else buckets["37+" ]++;
+    }
+    const labels = Object.keys(buckets);
+    const values = labels.map(k => buckets[k]);
+
+    Plotly.newPlot("chartPrazo", [{
+      x: labels, y: values, type:"bar"
+    }], {
+      margin:{l:40,r:10,t:10,b:40},
+      xaxis:{title:"Faixa de meses"},
+      yaxis:{title:"Qtd. processos"},
+      ...plotlyThemeLayout()
+    }, {responsive:true, displayModeBar:false});
+  }
+
+  function render3mVsHistorico(rows) {
+    const c = state.cols;
+    const dates = rows.map(r => r._dataDou).filter(d => d instanceof Date && !isNaN(d));
+    if (!dates.length) { Plotly.purge("chart3mHistorico"); return; }
+
+    const maxD = new Date(Math.max(...dates.map(d => d.getTime())));
+    const start3m = new Date(maxD); start3m.setMonth(start3m.getMonth() - 3);
+
+    const total = rows.length;
+    const last3 = rows.filter(r => r._dataDou && r._dataDou >= start3m).length;
+
+    Plotly.newPlot("chart3mHistorico", [{
+      x:["Últimos 3 meses","Histórico total"],
+      y:[last3,total],
+      type:"bar"
+    }], {
+      margin:{l:40,r:10,t:10,b:40},
+      yaxis:{title:"Qtd. processos"},
+      ...plotlyThemeLayout()
+    }, {responsive:true, displayModeBar:false});
+  }
+
+  function renderBenchmark(rows) {
+    const c = state.cols;
+    const byReq = new Map();
+    for (const r of rows) {
+      const req = (r[c.requerente] ?? "Não informado").toString().trim() || "Não informado";
+      if (!byReq.has(req)) byReq.set(req, { total:0, deferido:0 });
+      const o = byReq.get(req);
+
+      o.total += 1;
+      const st = (r[c.status] ?? "").toString().trim().toUpperCase();
+      if (st.startsWith("DEFER")) o.deferido += 1;
+    }
+
+    const ranked = Array.from(byReq.entries()).sort((a,b)=>b[1].total-a[1].total).slice(0, 25);
+    const x = ranked.map(([req,o]) => o.total);
+    const y = ranked.map(([req,o]) => o.total ? (o.deferido / o.total) * 100 : 0);
+    const text = ranked.map(([req,o]) => `${req}<br>Total: ${o.total}<br>Deferimento: ${fmtPct(o.total ? (o.deferido/o.total)*100 : 0)}`);
+    const sizes = ranked.map(([req,o]) => Math.max(10, Math.sqrt(o.total) * 6));
+
+    Plotly.newPlot("chartBenchmark", [{
+      x, y, text, mode:"markers", type:"scatter",
+      marker: { size: sizes, opacity:.85 }
+    }], {
+      margin: { l:60, r:10, t:10, b:50 },
+      xaxis: { title:"Volume (processos)" },
+      yaxis: { title:"Taxa de deferimento (%)", rangemode:"tozero" },
+      ...plotlyThemeLayout()
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  function renderPaisRnHeat(rows) {
+    const c = state.cols;
+    const paisSet = new Set();
+    const rnSet = new Set();
+    const map = new Map();
+
+    for (const r of rows) {
+      let pais = (r[c.pais] ?? "Não informado").toString().trim() || "Não informado";
+      if (isNotInformed(pais)) pais = "Não informado";
+      const rn = (r[c.rn] ?? "Não informado").toString().trim() || "Não informado";
+      paisSet.add(pais); rnSet.add(rn);
+      const key = pais + "||" + rn;
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+
+    const paises = Array.from(paisSet).slice(0, 15);
+    const rns = Array.from(rnSet).slice(0, 15);
+
+    const z = [];
+    for (let i=0;i<paises.length;i++){
+      const rowZ = [];
+      for (let j=0;j<rns.length;j++){
+        const key = paises[i] + "||" + rns[j];
+        rowZ.push(map.get(key) || 0);
+      }
+      z.push(rowZ);
+    }
+
+    Plotly.newPlot("chartPaisRn", [{
+      x: rns,
+      y: paises,
+      z: z,
+      type:"heatmap",
+      colorscale:"Viridis"
+    }], {
+      margin:{l:140,r:10,t:10,b:60},
+      xaxis:{title:"RN"},
+      yaxis:{title:"País"},
+      ...plotlyThemeLayout()
+    }, {responsive:true, displayModeBar:false});
+  }
+
+  function renderReqGrowthChart(rows) {
+    const c = state.cols;
+    const dates = rows.map(r => r._dataDou).filter(d => d instanceof Date && !isNaN(d));
+    if (!dates.length) { Plotly.purge("chartReqGrowth"); return; }
+    const maxD = new Date(Math.max(...dates.map(d => d.getTime())));
+    const start3m = new Date(maxD); start3m.setMonth(start3m.getMonth() - 3);
+    const start6m = new Date(maxD); start6m.setMonth(start6m.getMonth() - 6);
+
+    const byReq = new Map();
+    for (const r of rows) {
+      const req = (r[c.requerente] ?? "Não informado").toString().trim() || "Não informado";
+      if (!byReq.has(req)) byReq.set(req, { total:0,last3:0,prev3:0 });
+      const o = byReq.get(req);
+      o.total += 1;
+      const d = r._dataDou;
+      if (d && d >= start3m) o.last3 += 1;
+      else if (d && d >= start6m && d < start3m) o.prev3 += 1;
+    }
+
+    const list = Array.from(byReq.entries())
+      .map(([req,o]) => {
+        const growth = (o.prev3 === 0) ? (o.last3 > 0 ? 999 : 0) : ((o.last3 - o.prev3) / o.prev3);
+        return { req, ...o, growth };
+      })
+      .filter(x => x.last3 + x.prev3 >= 3)
+      .sort((a,b)=>b.growth-a.growth)
+      .slice(0,10);
+
+    const labels = list.map(x => x.req).reverse();
+    const values = list.map(x => x.growth === 999 ? 300 : x.growth*100).reverse();
+
+    Plotly.newPlot("chartReqGrowth", [{
+      x: values,
+      y: labels,
+      type:"bar",
+      orientation:"h",
+      text: list.map(x => `3M: ${x.last3} / prev: ${x.prev3}` ).reverse(),
+      textposition:"outside"
+    }], {
+      margin:{l:180,r:10,t:10,b:40},
+      xaxis:{title:"Crescimento % (3M vs 3M)"},
+      ...plotlyThemeLayout()
+    }, {responsive:true, displayModeBar:false});
+  }
+
+  function renderPrazoSetor(rows) {
+    const buckets = ["0-6","7-12","13-24","25-36","37+","Não informado"];
+    const bySetor = new Map();
+
+    for (const r of rows) {
+      const setor = r._setor || "Não informado";
+      if (!bySetor.has(setor)) bySetor.set(setor, Object.fromEntries(buckets.map(b => [b,0])));
+      const b = bySetor.get(setor);
+      const m = r._prazoMeses;
+      let key = "Não informado";
+      if (m !== null) {
+        if (m <= 6) key = "0-6";
+        else if (m <= 12) key = "7-12";
+        else if (m <= 24) key = "13-24";
+        else if (m <= 36) key = "25-36";
+        else key = "37+";
+      }
+      b[key] += 1;
+    }
+
+    const setores = Array.from(bySetor.keys());
+    const traces = buckets.map(bucket => ({
+      x: setores,
+      y: setores.map(s => bySetor.get(s)[bucket]),
+      name: bucket,
+      type: "bar"
+    }));
+
+    Plotly.newPlot("chartPrazoSetor", traces, {
+      barmode:"stack",
+      margin:{l:40,r:10,t:10,b:80},
+      xaxis:{title:"Setor"},
+      yaxis:{title:"Qtd. processos"},
+      ...plotlyThemeLayout()
+    }, {responsive:true, displayModeBar:false});
+  }
+
+  function renderInsights(rows) {
+    const c = state.cols;
+    const total = rows.length;
+
+    const missingPais = rows.filter(r => isNotInformed(r[c.pais])).length;
+    const missingPrazo = rows.filter(r => r._prazoMeses === null).length;
+
+    const reqMap = countBy(rows, r => (r[c.requerente] ?? "Não informado").toString().trim() || "Não informado");
+    const topReqs = topN(reqMap, 5).map(([k,v]) => `${k} (${v})`).join("; ");
+
+    const setMap = countBy(rows, r => r._setor || "Não informado");
+    const topSet = topN(setMap, 3).map(([k,v]) => `${k} (${v})`).join("; ");
+
+    const dates = rows.map(r => r._dataDou).filter(d => d instanceof Date && !isNaN(d));
+    let maxD = null, start3m = null;
+    if (dates.length){
+      maxD = new Date(Math.max(...dates.map(d => d.getTime())));
+      start3m = new Date(maxD); start3m.setMonth(start3m.getMonth()-3);
+    }
+    const last3 = start3m ? rows.filter(r => r._dataDou && r._dataDou >= start3m).length : 0;
+    const share3 = total ? (last3/total)*100 : 0;
+
+    el("insightsGeral").innerHTML = `
+      <ul class="mb-0">
+        <li><span class="fw-semibold">Onde está o volume hoje:</span> Top 5 requisitantes concentram boa parte da demanda: ${topReqs || "—"}.</li>
+        <li><span class="fw-semibold">Quais setores puxam a fila:</span> Indústrias com mais processos: ${topSet || "—"}.</li>
+        <li><span class="fw-semibold">Qualidade dos dados:</span> País ausente/“NO INFORMADO” em ${fmtPct(pct(missingPais, total))} e Prazo ausente em ${fmtPct(pct(missingPrazo, total))}; estes são pontos para qualificar cadastros.</li>
+        <li><span class="fw-semibold">Movimento recente:</span> Os últimos 3 meses representam ${fmtPct(share3)} do volume histórico — isso indica o ritmo atual de demanda.</li>
+        <li><span class="fw-semibold">Sugestão prática:</span> Priorizar contas com alto volume e muitos gaps para oferta de consultoria de processo e governança de dados de mobilidade.</li>
+      </ul>
+    `;
+  }
+
+  function renderBenchmarkInsights(rows) {
+    const c = state.cols;
+    const dates = rows.map(r => r._dataDou).filter(d => d instanceof Date && !isNaN(d));
+    if (!dates.length) { el("insightsBenchmark").textContent = "Sem Data DOU válida para leitura de tendência."; return; }
+
+    const maxD = new Date(Math.max(...dates.map(d => d.getTime())));
+    const start3m = new Date(maxD); start3m.setMonth(start3m.getMonth() - 3);
+    const start6m = new Date(maxD); start6m.setMonth(start6m.getMonth() - 6);
+
+    const byReq = new Map();
+    for (const r of rows) {
+      const req = (r[c.requerente] ?? "Não informado").toString().trim() || "Não informado";
+      if (!byReq.has(req)) byReq.set(req, { total:0, deferido:0, last3:0, prev3:0 });
+      const o = byReq.get(req);
+
+      o.total += 1;
+      const st = (r[c.status] ?? "").toString().trim().toUpperCase();
+      if (st.startsWith("DEFER")) o.deferido += 1;
+
+      const d = r._dataDou;
+      if (d && d >= start3m) o.last3 += 1;
+      else if (d && d >= start6m && d < start3m) o.prev3 += 1;
+    }
+
+    const ranked = Array.from(byReq.entries())
+      .filter(([req,o]) => o.total >= 5)
+      .map(([req,o]) => {
+        const rate = o.total ? (o.deferido / o.total) : 0;
+        const growth = (o.prev3 === 0) ? (o.last3 > 0 ? 999 : 0) : ((o.last3 - o.prev3) / o.prev3);
+        return { req, total:o.total, rate, last3:o.last3, prev3:o.prev3, growth };
+      });
+
+    const bestGrowth = ranked.slice().sort((a,b)=>b.growth-a.growth).slice(0,3);
+    const bestRate = ranked.slice().sort((a,b)=>b.rate-a.rate).slice(0,3);
+    const worstRate = ranked.slice().sort((a,b)=>a.rate-b.rate).slice(0,3);
+
+    const growthTxt = bestGrowth.map(x => `${x.req} (3M: ${x.last3}, prev: ${x.prev3})`).join("; ") || "—";
+    const rateTxt = bestRate.map(x => `${x.req} (${fmtPct(x.rate*100)}; n=${x.total})`).join("; ") || "—";
+    const worstTxt = worstRate.map(x => `${x.req} (${fmtPct(x.rate*100)}; n=${x.total})`).join("; ") || "—";
+
+    el("insightsBenchmark").innerHTML = `
+      <ul class="mb-0">
+        <li><span class="fw-semibold">Crescimento de demanda (3M vs 3M):</span> ${growthTxt}.</li>
+        <li><span class="fw-semibold">Melhor taxa de deferimento (mín. 5 casos):</span> ${rateTxt}.</li>
+        <li><span class="fw-semibold">Contas com taxa de deferimento mais baixa:</span> ${worstTxt} — bons candidatos para revisão de perfil, documentação e preparação de dossiê.</li>
+        <li><span class="fw-semibold">Leitura prática:</span> Alta demanda + taxa alta = conta madura; alta demanda + gaps = caso consultivo; baixa taxa = oportunidade para reposicionar o processo e educar o cliente.</li>
+      </ul>
+    `;
+  }
+
+  function scoreOpp(o) {
+    const vol = Math.log10(o.total + 1) * 10;
+    const gaps = ((o.missingPais + o.missingPrazo) / Math.max(1, o.total)) * 20;
+    const quality = (o.total ? (o.deferido / o.total) : 0) * 5;
+    return Math.round((vol + gaps + quality) * 10) / 10;
+  }
+
+  function renderOpps(rows) {
+    const c = state.cols;
+    const byReq = new Map();
+
+    for (const r of rows) {
+      const req = (r[c.requerente] ?? "Não informado").toString().trim() || "Não informado";
+      if (!byReq.has(req)) byReq.set(req, { total:0, missingPais:0, missingPrazo:0, deferido:0, setor:null });
+      const o = byReq.get(req);
+
+      o.total += 1;
+      const st = (r[c.status] ?? "").toString().trim().toUpperCase();
+      if (st.startsWith("DEFER")) o.deferido += 1;
+
+      if (isNotInformed(r[c.pais])) o.missingPais += 1;
+      if (r._prazoMeses === null) o.missingPrazo += 1;
+      o.setor = o.setor || r._setor;
+    }
+
+    const list = Array.from(byReq.entries())
+      .map(([req,o]) => ({
+        Requisitante: req,
+        Setor: o.setor || "—",
+        Processos: o.total,
+        "Deferimento (%)": o.total ? Math.round((o.deferido / o.total) * 1000) / 10 : 0,
+        "Gap País (%)": o.total ? Math.round((o.missingPais / o.total) * 1000) / 10 : 0,
+        "Gap Prazo (%)": o.total ? Math.round((o.missingPrazo / o.total) * 1000) / 10 : 0,
+        Score: scoreOpp(o)
+      }))
+      .filter(r => r.Processos >= 3)
+      .sort((a,b) => b.Score - a.Score)
+      .slice(0, 20);
+
+    el("oppsTable").innerHTML = `
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>Requisitante</th>
+              <th>Setor</th>
+              <th class="text-end">Processos</th>
+              <th class="text-end">Deferimento</th>
+              <th class="text-end">Gap País</th>
+              <th class="text-end">Gap Prazo</th>
+              <th class="text-end">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(r => `
+              <tr>
+                <td>${escapeHtml(r.Requisitante)}</td>
+                <td><span class="badge text-bg-light">${escapeHtml(r.Setor)}</span></td>
+                <td class="text-end">${fmtInt(r.Processos)}</td>
+                <td class="text-end">${fmtPct(r["Deferimento (%)"])}</td>
+                <td class="text-end">${fmtPct(r["Gap País (%)"])}</td>
+                <td class="text-end">${fmtPct(r["Gap Prazo (%)"])}</td>
+                <td class="text-end fw-semibold">${r.Score}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="soft" style="font-size:.85rem;">Score prioriza contas com volume + gaps de dados + boa taxa de deferimento, ideais para propostas estruturadas de governança e serviços contínuos.</div>
+    `;
+  }
+
+  function escapeHtml(s) {
+    return (s ?? "").toString()
+      .replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;").replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function buildColumns(rows) {
+    const sample = rows[0] || {};
+    const keys = Object.keys(sample);
+
+    const preferred = ["_dataDouStr","_mes","_setor", ...Object.keys(state.cols).map(k => state.cols[k]).filter(Boolean)];
+    const ordered = uniq(preferred.concat(keys));
+
+    return ordered
+      .filter(k => k in sample)
+      .filter(k => !/^_\d+$/.test(k))
+      .map(k => ({
+        title: k,
+        field: k,
+        headerFilter: "input",
+        formatter: (cell) => {
+          const v = cell.getValue();
+          if (v instanceof Date) return v.toLocaleDateString("pt-BR");
+          if (typeof v === "number" && k.includes("(%)")) return fmtPct(v);
+          return (v ?? "").toString();
+        }
+      }));
+  }
+
+  function renderGrid(rows) {
+    if (!state.grid) {
+      state.grid = new Tabulator("#grid", {
+        data: rows,
+        layout: "fitDataStretch",
+        pagination: true,
+        paginationSize: 25,
+        paginationSizeSelector: [25, 50, 100, 250],
+        movableColumns: true,
+        tooltips: true,
+        columns: buildColumns(rows),
+      });
+    } else {
+      state.grid.setData(rows);
+      state.grid.setColumns(buildColumns(rows));
+    }
+    el("gridMeta").textContent = `Linhas (filtradas): ${fmtInt(rows.length)} | Linhas (base): ${fmtInt(state.rows.length)}`;
+  }
+
+  function renderAll(rows) {
+    renderKPIs(rows);
+    renderTimeline(rows);
+    renderStatus(rows);
+    topBar("chartPais", rows, r => (r[state.cols.pais] ?? "Não informado").toString().trim() || "Não informado", "Qtd. processos", 12);
+    topBar("chartRN", rows, r => (r[state.cols.rn] ?? "Não informado").toString().trim() || "Não informado", "Qtd. processos", 12);
+    topBar("chartRequerentes", rows, r => (r[state.cols.requerente] ?? "Não informado").toString().trim() || "Não informado", "Qtd. processos", 15);
+    topBar("chartSetor", rows, r => (r._setor ?? "Não informado"), "Qtd. processos", 10);
+    renderFunilStatus(rows);
+    renderPrazoBuckets(rows);
+    render3mVsHistorico(rows);
+    renderPaisRnHeat(rows);
+    renderReqGrowthChart(rows);
+    renderPrazoSetor(rows);
+    renderBenchmark(rows);
+    renderInsights(rows);
+    renderBenchmarkInsights(rows);
+    renderOpps(rows);
+    renderGrid(rows);
+  }
+
+  function initChoices(selectId, placeholder) {
+    return new Choices(el(selectId), {
+      removeItemButton: true,
+      shouldSort: true,
+      placeholder: true,
+      placeholderValue: placeholder
+    });
+  }
+
+  function fillSelect(choices, values) {
+    const items = uniq(values).sort((a,b)=>a.localeCompare(b, "pt-BR"));
+    choices.clearStore();
+    choices.setChoices(items.map(v => ({ value: v, label: v })), "value", "label", true);
+  }
+
+  function initFilters(rows) {
+    const c = state.cols;
+
+    const dates = rows.map(r => r._dataDou).filter(d => d instanceof Date && !isNaN(d));
+    const minD = dates.length ? new Date(Math.min(...dates.map(d => d.getTime()))) : null;
+    const maxD = dates.length ? new Date(Math.max(...dates.map(d => d.getTime()))) : null;
+
+    const fmtISO = (d) => d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}` : "";
+
+    el("dateStart").value = minD ? fmtISO(minD) : "";
+    el("dateEnd").value = maxD ? fmtISO(maxD) : "";
+    el("dateStart_m").value = el("dateStart").value;
+    el("dateEnd_m").value = el("dateEnd").value;
+
+    el("dateRangeHint").textContent = minD && maxD
+      ? `Base: ${minD.toLocaleDateString("pt-BR")} → ${maxD.toLocaleDateString("pt-BR")}`
+      : "Base: —";
+
+    const req = rows.map(r => (r[c.requerente] ?? "Não informado").toString().trim() || "Não informado");
+    const st = rows.map(r => (r[c.status] ?? "Não informado").toString().trim() || "Não informado");
+    const pa = rows.map(r => (r[c.pais] ?? "Não informado").toString().trim() || "Não informado");
+    const rn = rows.map(r => (r[c.rn] ?? "Não informado").toString().trim() || "Não informado");
+    const se = rows.map(r => r._setor || "Não informado");
+
+    state.choices.fRequerente = initChoices("fRequerente", "Selecione requisitantes");
+    state.choices.fStatus = initChoices("fStatus", "Selecione status");
+    state.choices.fPais = initChoices("fPais", "Selecione países");
+    state.choices.fRN = initChoices("fRN", "Selecione RNs");
+    state.choices.fSetor = initChoices("fSetor", "Selecione setores");
+
+    fillSelect(state.choices.fRequerente, req);
+    fillSelect(state.choices.fStatus, st);
+    fillSelect(state.choices.fPais, pa);
+    fillSelect(state.choices.fRN, rn);
+    fillSelect(state.choices.fSetor, se);
+
+    state.choices.fRequerente_m = initChoices("fRequerente_m", "Selecione requisitantes");
+    state.choices.fStatus_m = initChoices("fStatus_m", "Selecione status");
+    state.choices.fPais_m = initChoices("fPais_m", "Selecione países");
+    state.choices.fRN_m = initChoices("fRN_m", "Selecione RNs");
+    state.choices.fSetor_m = initChoices("fSetor_m", "Selecione setores");
+
+    fillSelect(state.choices.fRequerente_m, req);
+    fillSelect(state.choices.fStatus_m, st);
+    fillSelect(state.choices.fPais_m, pa);
+    fillSelect(state.choices.fRN_m, rn);
+    fillSelect(state.choices.fSetor_m, se);
+
+    ["dateStart","dateEnd","fRequerente","fStatus","fPais","fRN","fSetor"]
+      .forEach(id => el(id).addEventListener("change", () => { syncMobileFiltersFromDesktop(); applyFilters(); }));
+
+    ["dateStart_m","dateEnd_m","fRequerente_m","fStatus_m","fPais_m","fRN_m","fSetor_m"]
+      .forEach(id => el(id).addEventListener("change", () => { syncDesktopFiltersFromMobile(); applyFilters(); }));
+  }
+
+  function detectColumns(rows) {
+    const headers = Object.keys(rows[0] || {});
+    return {
+      rn: pickCol(headers, ["RN", "R N", "Resolução Normativa", "Resolucao Normativa"]),
+      requerente: pickCol(headers, ["Requerente", "Requisitante", "Empresa", "Cliente"]),
+      prazo: pickCol(headers, ["Prazo", "Validade", "Prazo Residencia"]),
+      pais: pickCol(headers, ["Pais", "País", "Nacionalidade", "Nacionalidade/Pais"]),
+      dataDou: pickCol(headers, ["Data DOU", "DataDOU", "Data Publicacao", "Data Publicação", "Data"]),
+      status: pickCol(headers, ["Status", "Situacao", "Situação"])
+    };
+  }
+
+  function stripTechColumns(obj) {
+    for (const k of Object.keys(obj)) {
+      if (/^_\d+$/.test(k)) delete obj[k];
+    }
+  }
+
+  function normalizeRows(parsedRows) {
+    const rows = parsedRows
+      .filter(r => Object.values(r).some(v => (v ?? "").toString().trim() !== ""));
+
+    state.cols = detectColumns(rows);
+
+    for (const r of rows) {
+      stripTechColumns(r);
+
+      const d = state.cols.dataDou ? parseDateAny(r[state.cols.dataDou]) : null;
+      r._dataDou = d;
+      r._dataDouStr = d ? d.toLocaleDateString("pt-BR") : "";
+      r._mes = d ? monthKey(d) : "";
+      r._setor = setorHeuristico(state.cols.requerente ? r[state.cols.requerente] : "");
+      r._prazoMeses = state.cols.prazo ? parsePrazoMonths(r[state.cols.prazo]) : null;
+    }
+    return rows;
+  }
+
+  function parseCsvText(text) {
+    return new Promise((resolve, reject) => {
+      Papa.parse(text, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: false,
+        complete: (results) => resolve(results.data || []),
+        error: reject
+      });
+    });
+  }
+
+  async function boot(parsedRows) {
+    if (!parsedRows || !parsedRows.length) return;
+    state.rawRows = parsedRows;
+    state.rows = normalizeRows(parsedRows);
+    initFilters(state.rows);
+    applyFilters();
+  }
+
+  function initTheme() {
+    const saved = localStorage.getItem("dou_theme");
+    const theme = saved === "dark" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", theme);
+    el("btnTheme").textContent = `Tema: ${theme === "dark" ? "Escuro" : "Claro"}`;
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute("data-theme") || "light";
+    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("dou_theme", next);
+    el("btnTheme").textContent = `Tema: ${next === "dark" ? "Escuro" : "Claro"}`;
+    if (state.rows.length) applyFilters();
+  }
+
+  function clearFiltersDesktop() {
+    el("dateStart").value = "";
+    el("dateEnd").value = "";
+    for (const k of ["fRequerente","fStatus","fPais","fRN","fSetor"]) state.choices[k]?.removeActiveItems();
+    syncMobileFiltersFromDesktop();
+    applyFilters();
+  }
+
+  function clearFiltersMobile() {
+    el("dateStart_m").value = "";
+    el("dateEnd_m").value = "";
+    for (const k of ["fRequerente_m","fStatus_m","fPais_m","fRN_m","fSetor_m"]) state.choices[k]?.removeActiveItems();
+    syncDesktopFiltersFromMobile();
+    applyFilters();
+  }
+
+  el("btnTheme").addEventListener("click", toggleTheme);
+  el("btnPrint").addEventListener("click", () => window.print());
+  const initToggleBtn = (id, flagKey, labelOn, labelOff) => {
+    const b = el(id);
+    const applyState = () => {
+      const on = state.filters[flagKey];
+      b.classList.toggle("btn-outline-secondary", on);
+      b.classList.toggle("btn-secondary", !on);
+      b.textContent = on ? labelOn : labelOff;
+    };
+    applyState();
+    b.addEventListener("click", () => {
+      state.filters[flagKey] = !state.filters[flagKey];
+      applyState();
+      applyFilters();
+    });
+  };
+  initToggleBtn("btnToggleNI", "incluirNaoInformado", "Incluir “Não informado”", "Excluir “Não informado”");
+  initToggleBtn("btnToggleRNGen", "incluirRnGenerica", "Incluir RN genérica", "Excluir RN genérica");
+  el("btnReset").addEventListener("click", clearFiltersDesktop);
+  el("btnResetMobile").addEventListener("click", clearFiltersMobile);
+
+  el("fileInput").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const parsed = await parseCsvText(text);
+    await boot(parsed);
+  });
+
+  el("btnDownloadCsv").addEventListener("click", async () => {
+    const rows = state.grid ? state.grid.getData("active") : [];
+    const cleaned = rows.map(r => {
+      const o = { ...r };
+      for (const k of Object.keys(o)) if (/^_\d+$/.test(k)) delete o[k];
+      return o;
+    });
+    const csv = Papa.unparse(cleaned);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "export_filtrado.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  el("btnDownloadXlsx").addEventListener("click", async () => {
+    const rows = state.grid ? state.grid.getData("active") : [];
+    const cleaned = rows.map(r => {
+      const o = { ...r };
+      for (const k of Object.keys(o)) if (/^_\d+$/.test(k)) delete o[k];
+      return o;
+    });
+    const ws = XLSX.utils.json_to_sheet(cleaned);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "DadosFiltrados");
+    XLSX.writeFile(wb, "export_filtrado.xlsx");
+  });
+
+  (async () => {
+    setOsMonthYear();
+    initTheme();
+    try {
+      const res = await fetch(AUTO_CSV_URL);
+      if (res.ok) {
+        const text = await res.text();
+        const parsed = await parseCsvText(text);
+        await boot(parsed);
+        return;
+      }
+    } catch (e) {
+      console.warn("Falha ao carregar AUTO_CSV_URL, usar upload manual.", e);
+    }
+  })();
+})();
+</script>
+</body>
+</html>
